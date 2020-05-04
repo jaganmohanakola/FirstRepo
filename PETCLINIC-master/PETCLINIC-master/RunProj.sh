@@ -1,0 +1,2 @@
+mvn validate
+mvn package

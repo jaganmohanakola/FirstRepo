@@ -1,0 +1,293 @@
+1.Analyzing code coverage with the   MavenJaCoCo plugin:
+________________________________________________________
+
+JaCoCo is a free Java code coverage tool. This is essentially the successor to Emma, and it
+has been developed by the EclEmma team as an Eclipse project.
+JaCoCo offers line and branch coverage.
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.kiran.hello</groupId>
+  <artifactId>samplpro</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>samplpro</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+  <plugins>
+  <plugin>
+ <groupId>org.jacoco</groupId>
+ <artifactId>jacoco-maven-plugin</artifactId>
+ <version>0.7.2.201409121644</version>
+ <executions>
+ <execution>
+ <id>default-prepare-agent</id>
+ <goals>
+ <goal>prepare-agent</goal>
+ </goals>
+ </execution>
+ <execution>
+ <id>default-report</id>
+ <phase>prepare-package</phase>
+ <goals>
+ <goal>report</goal>
+ </goals>
+ </execution>
+ </executions>
+ </plugin>
+ </plugins>
+ </build>
+</project>
+--------------------------------------------------------------------------------------
+
+HOW TO VIEW REPORT:
+____________________
+Open the index.html file generated in the target/site/jacoco folder:
+---------------------------------------------------------------------------------
+
+In the pom file, we instruct Maven to run the following two goals of the Maven JaCoCo plugin:
+ prepare-agent: This is bound by default to the initialize phase of the Maven
+default lifecycle. The goal runs and prepares the agent that does the analysis.
+ report: This agent gathers test coverage information when the tests are run and
+creates the report as part of the prepare-package phase (which we have explicitly
+specified).
+
+
+You could subject the project to code coverage and generate the same report without making
+any changes to the pom file. To do this, run the following command:
+
+mvn jacoco:prepare-agent test jacoco:report
+
+If we get an following error:
+_________________________________
+u may get the following error:
+[ERROR] No plugin found for prefix 'jacoco' in the current project
+and in the plugin groups [org.apache.maven.plugins] available from
+the repositories [local (C:\software\maven), central
+
+workround:
+mvn org.jacoco:jacoco-maven-plugin:prepare-agent test
+org.jacoco:jacoco-maven-plugin:report
+==================================================================================
+How about failing the build if the code coverage is below a threshold value? To do this,
+perform the following steps:
+
+<execution>
+ <id>default-check</id>
+ <phase>prepare-package</phase>
+ <goals>
+ <goal>check</goal>
+ </goals>
+ <configuration>
+ <rules>
+ <rule>
+ <element>BUNDLE</element>
+ <limits>
+ <limit>
+ <counter>COMPLEXITY</counter>
+ <value>COVEREDRATIO</value>
+ <minimum>0.60</minimum>
+ </limit>
+
+ </limits>
+ </rule>
+ </rules>
+ </configuration>
+</execution>
+
+
+====================================================================================
+
+
+2.Analyzing code coverage with the Maven Cobertura plugin:
+_________________________________________________________
+Cobertura is another popular Java tool that calculates the percentage of code accessed by
+tests. It is based on jcoverage. There are many ways to use Cobertura, including standalone,
+through Ant script, and Maven. 
+===================================
+cmd: mvn cobertura:cobertura
+===================================
+Description:
+JaCoCo instruments the code online when the tests are running and hence,it needs to have
+the agent running. On the other hand, Cobertura instruments the bytecode during compilation
+offline. The cobertura goal of the Cobertura Maven plugin instruments the project, runs the
+tests, and generates the report.
+
+There are separate goals to instrument and check results, if require
+
+
+
+case:
+<plugin>
+ <groupId>org.codehaus.mojo</groupId>
+ <artifactId>cobertura-maven-plugin</artifactId>
+
+ <version>2.6</version>
+ <configuration>
+ <check>
+ <branchRate>85</branchRate>
+ <lineRate>85</lineRate>
+ <haltOnFailure>true</haltOnFailure>
+ </check>
+ </configuration>
+ <executions>
+ <execution>
+ <goals>
+ <goal>check</goal>
+ </goals>
+ </execution>
+ </executions>
+ </plugin>
+
+mvn cobertura:check
+
+===============================================================================
+
+3.Analyzing code with the Maven SonarQube plugin:
+__________________________________________________
+
+>SonarQube is a platform to manage code quality. 
+>It is a web-based application, where rules,
+alerts, thresholds, and other metrics can be configured. It provides various ways to analyze
+code. 
+>The results of the analysis can then be viewed in a web application. 
+>SonarQube also
+provides several paid plugins, such as SQALE, and for specific languages, such as Cobol
+and C++.
+
+
+SonarQube :
+1. http://www.sonarqube.org/downloads/.
+2. Download the latest release.
+3. Unzip the ZIP file to a folder of your choice.
+4. Based on the platform, start the server by following the instructions.
+5. Confirm that the server is running by visiting the web page at http://
+localhost:9000/ (assuming it's a default installation).
+
+
+How to do it:
+___________________
+1.before run the maven , first start the sonar server
+2.open maven project
+
+3.mvn sonar:sonar
+4.Visit the Sonar web page at http://localhost:9000 or refresh
+5. Click on the project link:
+
+
+Moreinfo:
+________________
+>The sonar goal of the Maven SonarQube plugin sets in motion a series of steps to do various
+analyses of the project.
+
+> Based on the configuration, the Sonar plugin performs Checkstyle
+analysis, FindBugs analysis and PMD analysis, as well as detects code coverage, code
+duplication, design issues and code complexity.
+
+
+>It sends the output to a database and generates reports that can be viewed from the web
+page by the user.
+
+==========================================================================
+
+4.Analyzing code with the Maven PMD plugin:
+___________________________________________
+
+>PMD is a source code analyzer.
+>It finds common programming flaws such as unused variables,
+empty catch blocks, and unnecessary object creation.
+> It also includes the Copy/PasteDetector (CPD) that finds duplicated code.
+
+steps to perform:
+go maven project where pom.xml is saved
+
+>mvn pmd:pmd pmd:cpd
+>Check the contents of the target folder:
+>open the pmd.xml
+>open the cpd.html file in the site folder.
+=================================================================================
+5.Analyzing code with the Maven Checkstyle plugin:
+
+ >Checkstyle is a tool that helps programmers follow coding standards.
+ >It automates theprocess of checking if defined coding standards are followed.
+ >It can support any codingstandards by suitable configuration. 
+ >Like other tools, it can be run standalone as well as integrated with Maven.
+
+ mvn checkstyle:checkstyle
+
+Open the checkstyle-result.xml report in the target folder:
+
+====================================================================================
+
+6.Analyzing code with the Maven FindBugs plugin:
+
+>FindBugs is another tool that uses static analysis to inspect Java bytecode for bugs in a Java
+code. 
+>It is based on the concept of bug patterns.
+>A bug pattern is a code snippet that is oftenan error.
+
+steps:
+1.mvn clean compile findbugs:findbugs
+
+2.Open the generated XML file findbugsXml.xml in the target folder:
+
+
+When the findbugs goal of the FindBugs plugin is run, it analyzes the bytecode and reports
+errors to an output file in the XML format. Unlike Checkstyle and the PMD plugins, it does not
+generate a default site report unless configured differently
+
+
+
+
+You can also launch the FindBugs GUI to view the report in a graphical format:
+1.  run the following Maven command:
+
+mvn compile findbugs:findbugs findbugs:gui
+
+2. Observe the FindBugs screen:
+
+
+===================================================================
+
+7.Generating source references with the  Maven JXR plugin:
+
+
+ following warnings when running the PMD or Checkstyle plugin:
+[INFO] --- maven-pmd-plugin:3.2:pmd (default-cli) @ project-withviolations
+---
+[WARNING] Unable to locate Source XRef to link to – DISABLED
+[INFO] --- maven-checkstyle-plugin:2.13:checkstyle (default-cli) @
+project-with-violations ---
+[INFO]
+[INFO] There are 36 checkstyle errors.
+[WARNING] Unable to locate Source XRef to link to – DISABLED
+The plugins attempt to link the violation to the specific lines in the cross-reference of the
+source. As they are unable to find this cross-reference, they display the warning.
+
+=====================================================================
+To generate this cross-reference, we need to use the Maven JXR plugin.
+
+mvn jxr:jxr
+
+Browse the target/site folder.
+
+Open the contents of the xref folder in the browser:
+
+Once the cross-reference exists, code quality tools, such as PMD and Checkstyle, link to this
+reference automatically by using the following steps:
+
+
+1. Run the following Maven command:
+mvn jxr:jxr checkstyle:checkstyle
+
+
+2. Open the Checkstyle report in the browser:
